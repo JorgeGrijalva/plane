@@ -110,7 +110,7 @@ export const PLANE_COMMUNITY_PRODUCTS: Record<string, IPaymentProduct> = {
       },
     ],
     payment_quantity: 1,
-    is_active: false,
+    is_active: true,
   },
 };
 
