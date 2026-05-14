@@ -60,8 +60,7 @@ export const CycleListItemAction = observer(function CycleListItemAction(props: 
   // hooks
   const { isMobile } = usePlatformOS();
   const { t } = useTranslation();
-  const { isProjectTimeZoneDifferent, getProjectUTCOffset, renderFormattedDateInUserTimezone } =
-    useTimeZoneConverter(projectId);
+  const { getProjectUTCOffset, renderFormattedDateInUserTimezone } = useTimeZoneConverter(projectId);
   // router
   const router = useAppRouter();
   const searchParams = useSearchParams();
@@ -111,6 +110,7 @@ export const CycleListItemAction = observer(function CycleListItemAction(props: 
     const addToFavoritePromise = addCycleToFavorites(workspaceSlug?.toString(), projectId.toString(), cycleId).then(
       () => {
         if (!isFavoriteMenuOpen) toggleFavoriteMenu(true);
+        return null;
       }
     );
 
@@ -194,15 +194,22 @@ export const CycleListItemAction = observer(function CycleListItemAction(props: 
       )}
       <CycleAdditionalActions cycleId={cycleId} projectId={projectId} />
       {showTransferIssues && (
-        <div
-          className="flex h-6 cursor-pointer items-center gap-1 px-2 text-accent-secondary"
+        <button
+          type="button"
+          className="flex h-6 cursor-pointer items-center gap-1 px-2 text-accent-secondary outline-none focus:bg-layer-1"
           onClick={() => {
             setTransferIssuesModal(true);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setTransferIssuesModal(true);
+            }
           }}
         >
           <TransferIcon className="w-4 fill-accent-primary" />
           <span>{t("project_cycles.transfer_work_items", { count: transferableIssuesCount })}</span>
-        </div>
+        </button>
       )}
       {isActive ? (
         <>
@@ -210,13 +217,18 @@ export const CycleListItemAction = observer(function CycleListItemAction(props: 
             {/* Duration */}
             <Tooltip
               tooltipContent={
-                <span className="flex gap-1">
-                  {renderFormattedDateInUserTimezone(cycleDetails.start_date ?? "")}
-                  <ArrowRight className="my-auto h-3 w-3 flex-shrink-0" />
-                  {renderFormattedDateInUserTimezone(cycleDetails.end_date ?? "")}
+                <span className="flex flex-col gap-1">
+                  <span className="flex gap-1">
+                    {renderFormattedDateInUserTimezone(cycleDetails.start_date ?? "")}
+                    <ArrowRight className="my-auto h-3 w-3 flex-shrink-0" />
+                    {renderFormattedDateInUserTimezone(cycleDetails.end_date ?? "")}
+                  </span>
+                  <span className="text-xs text-orange-500 mt-1 block max-w-[200px] whitespace-normal">
+                    Si liberas piezas después de esta fecha, se etiquetarán como [ANOMALÍA].
+                  </span>
                 </span>
               }
-              disabled={!isProjectTimeZoneDifferent()}
+              disabled={false}
               tooltipHeading={t("project_cycles.in_your_timezone")}
             >
               <div className="flex items-center gap-1 text-11 font-medium text-tertiary">
@@ -249,13 +261,18 @@ export const CycleListItemAction = observer(function CycleListItemAction(props: 
                 from: t("project_cycles.start_date"),
                 to: t("project_cycles.end_date"),
               }}
-              showTooltip={isProjectTimeZoneDifferent()}
+              showTooltip={true}
               customTooltipHeading={t("project_cycles.in_your_timezone")}
               customTooltipContent={
-                <span className="flex gap-1">
-                  {renderFormattedDateInUserTimezone(cycleDetails.start_date ?? "")}
-                  <ArrowRight className="my-auto h-3 w-3 flex-shrink-0" />
-                  {renderFormattedDateInUserTimezone(cycleDetails.end_date ?? "")}
+                <span className="flex flex-col gap-1">
+                  <span className="flex gap-1">
+                    {renderFormattedDateInUserTimezone(cycleDetails.start_date ?? "")}
+                    <ArrowRight className="my-auto h-3 w-3 flex-shrink-0" />
+                    {renderFormattedDateInUserTimezone(cycleDetails.end_date ?? "")}
+                  </span>
+                  <span className="text-xs text-orange-500 mt-1 block max-w-[200px] whitespace-normal">
+                    Si liberas piezas después de esta fecha, se etiquetarán como [ANOMALÍA].
+                  </span>
                 </span>
               }
               mergeDates

@@ -169,10 +169,15 @@ export const WorkItemStateDropdownBase = observer(function WorkItemStateDropdown
             className={buttonClassName}
             isActive={isOpen}
             tooltipHeading={t("state")}
-            tooltipContent={selectedState?.name ?? t("state")}
-            showTooltip={showTooltip}
+            tooltipContent={
+              selectedState?.name?.includes("Terminado") || selectedState?.name?.includes("05")
+                ? "Al marcar como terminado, el sistema asignará automáticamente este producto al equipo de Captura (Tienen 24h de SLA)."
+                : (selectedState?.name ?? t("state"))
+            }
+            showTooltip={showTooltip || selectedState?.name?.includes("Terminado")}
             variant={buttonVariant}
             renderToolTipByDefault={renderByDefault}
+            data-tour="issue-status"
           >
             {isInitializing ? (
               <Spinner className="h-3.5 w-3.5" />
@@ -206,6 +211,9 @@ export const WorkItemStateDropdownBase = observer(function WorkItemStateDropdown
   return (
     <ComboDropDown
       as="div"
+      role="combobox"
+      aria-expanded={isOpen}
+      aria-controls="state-dropdown-options"
       ref={dropdownRef}
       className={cn("h-full", className)}
       value={stateValue}
@@ -216,7 +224,7 @@ export const WorkItemStateDropdownBase = observer(function WorkItemStateDropdown
       renderByDefault={renderByDefault}
     >
       {isOpen && (
-        <Combobox.Options className="fixed z-10" static>
+        <Combobox.Options id="state-dropdown-options" className="fixed z-10" static>
           <div
             className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none"
             ref={setPopperElement}

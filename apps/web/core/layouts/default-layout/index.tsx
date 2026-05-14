@@ -7,6 +7,8 @@
 import type { ReactNode } from "react";
 import { cn } from "@plane/utils";
 
+import { ESJOnboardingTour } from "@/components/ESJOnboardingTour";
+
 type Props = {
   children: ReactNode;
   gradient?: boolean;
@@ -15,7 +17,10 @@ type Props = {
 
 function DefaultLayout({ children, gradient = false, className }: Props) {
   return (
-    <div className={cn(`h-screen w-full overflow-hidden ${gradient ? "" : "bg-surface-1"}`, className)}>{children}</div>
+    <div className={cn(`h-screen w-full overflow-hidden ${gradient ? "" : "bg-surface-1"}`, className)}>
+      <ESJOnboardingTour />
+      {children}
+    </div>
   );
 }
 
