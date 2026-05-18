@@ -19,11 +19,12 @@ async function runSeed() {
   try {
     // 1. Crear el Proyecto "EAA-00-ENTRENAMIENTO"
     console.log("Creando Proyecto EAA-00-ENTRENAMIENTO...");
+    const suffix = Math.floor(Math.random() * 100);
     const projectResponse = await planeClient.post(`/projects/`, {
-      name: "EAA-00-ENTRENAMIENTO (Área de Pruebas)",
-      identifier: "EAA00",
-      description: "Proyecto de Entrenamiento para nuevos ingresos. Puedes mover los estatus libremente.",
-      network: 2, // 2 = Public within workspace
+      name: "EAATest " + suffix,
+      identifier: "EAAT" + suffix,
+      description: "Proyecto de Entrenamiento",
+      network: 2,
     });
 
     const projectId = projectResponse.data.id;
@@ -36,6 +37,7 @@ async function runSeed() {
     startDate.setDate(today.getDate() - 7); // Empezó hace 7 días
 
     const cycleResponse = await planeClient.post(`/projects/${projectId}/cycles/`, {
+      project: projectId,
       name: "FB_PRUEBA",
       start_date: startDate.toISOString().split("T")[0],
       end_date: today.toISOString().split("T")[0],

@@ -1,17 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { Joyride, STATUS } from "react-joyride";
-import type { CallBackProps } from "react-joyride";
+import React, { useState, useEffect, startTransition, Suspense } from "react";
+import * as ReactJoyride from "react-joyride";
+
+const Joyride: any = (ReactJoyride as any).default || (ReactJoyride as any).Joyride || ReactJoyride;
+const STATUS: any = (ReactJoyride as any).STATUS || { FINISHED: "finished", SKIPPED: "skipped" };
 
 export const ESJOnboardingTour = () => {
   const [run, setRun] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    startTransition(() => {
+      setIsMounted(true);
+    });
     // Check if the user has already seen the tour
     const hasSeenTour = localStorage.getItem("esj_onboarding_completed");
     if (!hasSeenTour) {
-      setRun(true);
+      startTransition(() => {
+        setRun(true);
+      });
     }
   }, []);
+
+  if (!isMounted) return null;
 
   const steps = [
     {
@@ -35,32 +45,36 @@ export const ESJOnboardingTour = () => {
     },
   ];
 
-  const handleJoyrideCallback = (data: CallBackProps) => {
+  const handleJoyrideCallback = (data: any) => {
     const { status } = data;
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
 
     if (finishedStatuses.includes(status)) {
-      setRun(false);
+      startTransition(() => {
+        setRun(false);
+      });
       localStorage.setItem("esj_onboarding_completed", "true");
     }
   };
 
   return (
-    <Joyride
-      callback={handleJoyrideCallback}
-      continuous
-      hideCloseButton
-      run={run}
-      scrollToFirstStep
-      showProgress
-      showSkipButton
-      steps={steps}
-      styles={{
-        options: {
-          zIndex: 10000,
-          primaryColor: "#0052CC",
-        },
-      }}
-    />
+    <Suspense fallback={null}>
+      <Joyride
+        callback={handleJoyrideCallback}
+        continuous
+        hideCloseButton
+        run={run}
+        scrollToFirstStep
+        showProgress
+        showSkipButton
+        steps={steps}
+        styles={{
+          options: {
+            zIndex: 10000,
+            primaryColor: "#0052CC",
+          },
+        }}
+      />
+    </Suspense>
   );
 };
